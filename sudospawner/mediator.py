@@ -106,7 +106,7 @@ ssh -N -f -L 8081:localhost:8081 jupyter-test.ipsl.upmc.fr
     queue = "short"
     mem = 1
     hours = 1
-    id = "jup"
+    id = "jupyter"
     serialpbs = serialpbs.substitute(dict(queue = queue, mem = mem, hours=hours,  id=id, port=port, PATH="$PATH"))
     serialpbs+='\n'
     #serialpbs+='cd %s' % "notebooks"
