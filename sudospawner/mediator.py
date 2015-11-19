@@ -86,10 +86,10 @@ def spawn(args, env):
 #PBS -S /bin/bash
 ##PBS -l nodes=1:ppn=1,walltime=$hours:00:00,pvmem=${mem}gb
 #PBS -l walltime=$hours:00:00
-#PBS -N $id
+#PBS -N jupyter
 #PBS -q $queue
 #PBS -r n
-#PBS -o /tmp/s_$id.log
+#PBS -o /tmp/notebook_$id.log
 #PBS -j oe
 #PBS -V
 
@@ -106,7 +106,7 @@ ssh -N -f -L 8081:localhost:8081 jupyter-test.ipsl.upmc.fr
     queue = "short"
     mem = 1
     hours = 1
-    id = "jupyter"
+    id = getpass.getuser()
     serialpbs = serialpbs.substitute(dict(queue = queue, mem = mem, hours=hours,  id=id, port=port, PATH="$PATH"))
     serialpbs+='\n'
     #serialpbs+='cd %s' % "notebooks"
