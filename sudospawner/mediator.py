@@ -93,8 +93,9 @@ def spawn(args, env):
 #PBS -j oe
 #PBS -V
 
-export PATH=/prodigfs/jupyter/anaconda3/envs/virtualenv/bin:$PATH
-export VIRTUAL_ENV=/prodigfs/jupyter/anaconda3/envs/virtualenv/
+module purge
+module load python/3.4-anaconda3
+source activate /prodigfs/jupyter/anaconda3/
 
 # setup tunnel for notebook
 ssh -N -f -R $port:localhost:$port jupyter-test.ipsl.upmc.fr
