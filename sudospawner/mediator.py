@@ -94,7 +94,7 @@ def spawn(args, env):
 #PBS -V
 
 module purge
-#module load python/3.4-anaconda3
+module load python/3.4-anaconda3
 source activate /prodigfs/jupyter/anaconda3/
 
 # setup tunnel for notebook
