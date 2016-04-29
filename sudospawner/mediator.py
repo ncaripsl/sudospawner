@@ -23,11 +23,14 @@ import sys
 from string import Template
 
 from subprocess import Popen
+from subprocess import check_output
 import subprocess
 
 from tornado import log
 from tornado.options import parse_command_line
 app_log = log.app_log
+
+from bs4 import BeautifulSoup
 
 def finish(data, fp=sys.stdout):
     """write JSON to stdout"""
@@ -40,16 +43,11 @@ def kill(pid, signal):
     app_log.debug("Sending signal %i to %i", signal, pid)
 
     if (signal == 0):
-        p = Popen(["qstat", str(pid)],
-            cwd=os.path.expanduser('~'),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-
-        streamdata = p.communicate()[0]
-        rc = p.returncode
-        if (rc == 0):
+        output = subprocess.check_output(["qstat", "-x", str(pid)])
+        soup = BeautifulSoup(output, 'xml')
+        state = soup.find('job_state').string
+	
+        if (state == 'R'):
             alive = True
         else:
             alive = False
@@ -87,7 +85,6 @@ def spawn(args, env):
 ##PBS -l nodes=1:ppn=1,walltime=$hours:00:00,pvmem=${mem}gb
 #PBS -l walltime=$hours:00:00
 #PBS -N jupyter
-#PBS -q $queue
 #PBS -r n
 #PBS -o /tmp/notebook_$id.log
 #PBS -j oe
@@ -103,11 +100,10 @@ ssh -N -f -R $port:localhost:$port jupyter-test.ipsl.upmc.fr
 ssh -N -f -L 8081:localhost:8081 jupyter-test.ipsl.upmc.fr
 
     ''')
-    queue = "short"
     mem = 1
-    hours = 1
+    hours = 6
     id = getpass.getuser()
-    serialpbs = serialpbs.substitute(dict(queue = queue, mem = mem, hours=hours,  id=id, port=port, PATH="$PATH"))
+    serialpbs = serialpbs.substitute(dict(mem = mem, hours=hours,  id=id, port=port, PATH="$PATH"))
     serialpbs+='\n'
     #serialpbs+='cd %s' % "notebooks"
     serialpbs+='\n'
